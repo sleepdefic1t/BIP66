@@ -13,6 +13,7 @@
 #ifndef BIP66_H
 #define BIP66_H
 
+#include <stdint.h>
 #include <vector>
 
 namespace BIP66 {

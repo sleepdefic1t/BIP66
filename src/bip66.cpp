@@ -11,8 +11,9 @@
  **/
 
 #include "bip66.h"
-#include <vector>
 #include <cstring>
+#include <stdint.h>
+#include <vector>
 
 
 bool BIP66::check(const std::vector<uint8_t>& signature) {
