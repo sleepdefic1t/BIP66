@@ -1,0 +1,20 @@
+{
+  "name": "BIP66",
+  "keywords": "ark ecosystem, crypto, blockchain, secp256k1, iot, arduino, ecdsa, bip66, bitcoin",
+  "description": "A simple C++ implementation of Bitcoin BIP66 for the Ark Ecosystem.",
+  "homepage": "https://github.com/sleepdefic1t/bip66",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sleepdefic1t/bip66.git"
+  },
+  "version": "0.1.0",
+  "authors": [
+    {
+      "name": "Ark Ecosystem",
+      "email": "info@ark.io",
+      "url": "https://github.com/ArkEcosystem"
+    }
+  ],
+  "frameworks": "arduino",
+  "platforms": "*"
+}
