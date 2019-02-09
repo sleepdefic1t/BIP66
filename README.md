@@ -2,7 +2,7 @@
 
 > A simple C++ implementation of Bitcoin BIP66 for the Ark Ecosystem.
 
-ANS1 DER Ecoder/Decoder based on [Bitcoin BIP66](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki).
+ANS.1 DER Encoder/Decoder based on [Bitcoin BIP66](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki).
 
 [![Build Status](https://badgen.now.sh/circleci/github/sleepdefic1t/BIP66)](https://circleci.com/gh/sleepdefic1t/BIP66)
 [![Latest Version](https://badgen.now.sh/github/release/ArkEcosystem/cpp-crypto)](https://github.com/ArkEcosystem/cpp-crypto/releases)
