@@ -5,7 +5,7 @@
 ANS.1 DER Encoder/Decoder based on [Bitcoin BIP66](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki).
 
 [![Build Status](https://badgen.now.sh/circleci/github/sleepdefic1t/BIP66)](https://circleci.com/gh/sleepdefic1t/BIP66)
-[![Latest Version](https://badgen.now.sh/github/release/ArkEcosystem/cpp-crypto)](https://github.com/ArkEcosystem/cpp-crypto/releases)
+[![Latest Version](https://badgen.now.sh/github/release/sleepdefic1t/BIP66)](https://github.com/sleepdefic1t/BIP66/releases)
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
 
 ## Supported Platforms
