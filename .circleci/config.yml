@@ -105,7 +105,7 @@ workflows:
   version: 2
   build:
     jobs:
-      - build-arduino-esp32-default
+      - build-arduino-default
       - build-platformio-default
       - build-linux-gcc7
       - build-linux-clang-5
