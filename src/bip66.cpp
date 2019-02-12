@@ -98,25 +98,34 @@ bool BIP66::encode(
     const std::vector<uint8_t>& r,
     const std::vector<uint8_t>& s,
     std::vector<uint8_t>& signatureBuffer) {
-  auto lenR = r.size();
-  auto lenS = s.size();
+  std::vector<uint8_t> rValue(r);
+  std::vector<uint8_t> sValue(s);
+  if (rValue.size() > 1 && (rValue[0] & 0x80) != 0) {
+    rValue.insert(rValue.begin(), 0x00);
+  };
+  if (sValue.size() > 1 && (sValue[0] & 0x80) != 0) {
+    sValue.insert(sValue.begin(), 0x00);
+  };
+
+  auto lenR = rValue.size();
+  auto lenS = sValue.size();
   if ((lenR == 0)
     || (lenS == 0)
     || (lenR > 33)
     || (lenS > 33)
-    || (r[0] & 0x80)
-    || (s[0] & 0x80)
-    || (lenR > 1 && (r[0] == 0x00) && !(r[1] & 0x80))
-    || (lenS > 1 && (s[0] == 0x00) && !(s[1] & 0x80))) {
+    || (rValue[0] & 0x80)
+    || (sValue[0] & 0x80)
+    || (lenR > 1 && (rValue[0] == 0x00) && !(rValue[1] & 0x80))
+    || (lenS > 1 && (sValue[0] == 0x00) && !(sValue[1] & 0x80))) {
     return false;
   };
 
-  auto it = r.begin();
+  auto it = rValue.begin();
   while (lenR > 1 && *it == 0 && *(it + 1) < 0x80) {
     --lenR;
     ++it;
   };
-  it = s.begin();
+  it = sValue.begin();
   while (lenS > 1 && *it == 0 && *(it + 1) < 0x80) {
     --lenS;
     ++it;
@@ -126,14 +135,14 @@ bool BIP66::encode(
   signatureBuffer.reserve(6 + lenR + lenS);
 
   /* 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S] */
-  signatureBuffer.push_back(0x30);                                      // [0]
-  signatureBuffer.push_back(static_cast<uint8_t>(6 + lenR + lenS - 2)); // [1]
-  signatureBuffer.push_back(0x02);                                      // [2]
-  signatureBuffer.push_back(static_cast<uint8_t>(lenR));                // [3]
-  signatureBuffer.insert(signatureBuffer.end(), r.begin(), r.end());    // [4]
-  signatureBuffer.push_back(0x02);                                      // [4 + lenR]
-  signatureBuffer.push_back(static_cast<uint8_t>(lenS));                // [5 + lenR]
-  signatureBuffer.insert(signatureBuffer.end(), s.begin(), s.end());    // [6 + lenR]
+  signatureBuffer.push_back(0x30);                                              // [0]
+  signatureBuffer.push_back(static_cast<uint8_t>(6 + lenR + lenS - 2));         // [1]
+  signatureBuffer.push_back(0x02);                                              // [2]
+  signatureBuffer.push_back(static_cast<uint8_t>(lenR));                        // [3]
+  signatureBuffer.insert(signatureBuffer.end(), rValue.begin(), rValue.end());  // [4]
+  signatureBuffer.push_back(0x02);                                              // [4 + lenR]
+  signatureBuffer.push_back(static_cast<uint8_t>(lenS));                        // [5 + lenR]
+  signatureBuffer.insert(signatureBuffer.end(), sValue.begin(), sValue.end());  // [6 + lenR]
 
   return check(signatureBuffer);
 }
