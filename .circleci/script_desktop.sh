@@ -3,4 +3,4 @@ cmake .
 cmake --build .
 
 # run Gtest
-./test/BIP66_tests
+./test/BIP66-tests

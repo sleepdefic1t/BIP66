@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(BIP66_tests C CXX)
+project(BIP66-tests C CXX)
 
 set(BUILD_GMOCK OFF FORCE)
 
