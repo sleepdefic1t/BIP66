@@ -19,17 +19,7 @@
   "platforms": "*",
   "export": {
     "include": [
-      "src/*",
-      "examples/*",
-      "*.md",
-      "*.json",
-      "*.properties",
-      "LICENSE",
-      "*.ini",
-      "keywords.txt"
-    ],
-    "exclude": [
-      "*/*.txt"
+      "src/*"
     ]
   }
 }
