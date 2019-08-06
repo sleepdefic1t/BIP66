@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.2.0] - 2019-02-13
 ### Added
--   ported hex-string test-cases from `bitcoinjs` lib to byte/uint8_t vectors [#4])
+-   ported hex-string test-cases from `bitcoinjs` lib to byte/uint8_t vectors ([#4])
 
 ### Changed
 -   change test name.

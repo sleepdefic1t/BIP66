@@ -10,33 +10,34 @@ ANS.1 DER Encoder/Decoder based on [Bitcoin BIP66](https://github.com/bitcoin/bi
 
 ## Supported Platforms
 
-| IoT: | supported: |
-| :-------- | :--------: |
-| Arduino IDE | [x] |
-| PlatformIO | [x] |
+| IoT:        | supported: |
+| :---------- | :--------: |
+| Arduino IDE | [x]        |
+| PlatformIO  | [x]        |
 
 | Boards: | supported: |
-| :-------- | :--------: |
-| ESP8266 | [x] |
-| ESP32 | [x] |
+| :------ | :--------: |
+| ESP8266 | [x]        |
+| ESP32   | [x]        |
 
 | OS Platform: | supported: |
-| :-------- | :--------: |
-| Linux | [x] |
-| macOS | [x] |
-| Windows | [x] |
+| :----------- | :--------: |
+| Linux        | [x]        |
+| macOS        | [x]        |
+| Windows      | [x]        |
 
 ## Installation
 
 ### Dependencies
 
-- IoT:
-  - **Arduino IDE**: N/A
-  - **PlatformIO**: AUnit
-- OS:
-  - **Linux**: CMake
-  - **macOS**: CMake
-  - **Windows**: CMake
+IoT:
+-   **Arduino IDE**: N/A
+-   **PlatformIO**: AUnit
+
+OS:
+-   **Linux**: CMake
+-   **macOS**: CMake
+-   **Windows**: CMake
 
 ---
 
