@@ -18,7 +18,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Make scripts executable 
+          name: Make scripts executable
           command: sudo chmod -R +x ./.circleci/*.sh
       - run:
           name: Install
@@ -63,7 +63,7 @@ jobs:
             sudo apt-get update
             sudo apt-get -y install clang-5.0 lcov cmake
       - run:
-          name: Make scripts executable 
+          name: Make scripts executable
           command: sudo chmod -R +x ./.circleci/*.sh
       - run:
           name: Environment variables
