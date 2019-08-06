@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # run desktop builds
 cmake .
 cmake --build .

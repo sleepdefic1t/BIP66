@@ -11,10 +11,10 @@
 
 #include <bip66.h>
 
+#include <cstdio>
 #include <vector>
 
 struct TestCases {
-public:
   const std::vector<std::vector<uint8_t>> decoded = {
     //  21704f2adb2e4a10a3ddc1d7d64552b8061c05f6d12a168c69091c75581d61140edf37689d2786fc690af9f0f6fa1f629c95695039f648a6d455484302402e93
     { 33, 112, 79, 42, 219, 46, 74, 16, 163, 221, 193, 215, 214, 69, 82, 184, 6, 28, 5, 246, 209, 42, 22, 140, 105, 9, 28, 117, 88, 29, 97, 20, 14, 223, 55, 104, 157, 39, 134, 252, 105, 10, 249, 240, 246, 250, 31, 98, 156, 149, 105, 80, 57, 246, 72, 166, 212, 85, 72, 67, 2, 64, 46, 147 },
@@ -43,7 +43,6 @@ public:
 
   // additional test cases adapted from: https://github.com/bitcoinjs/bip66/blob/master/test/fixtures.json
   struct valid {
-  public:
     const std::vector<std::vector<uint8_t>> der = {
       //  3044022029db2d5f4e1dcc04e19266cce3cb135865784c62ab653b307f0e0bb744f5c2aa022000a97f5826912cac8b44d9f577a26f169a2f8db781f2ddb7de2bc886e93b6844
       { 48, 68, 2, 32, 41, 219, 45, 95, 78, 29, 204, 4, 225, 146, 102, 204, 227, 203, 19, 88, 101, 120, 76, 98, 171, 101, 59, 48, 127, 14, 11, 183, 68, 245, 194, 170, 2, 32, 0, 169, 127, 88, 38, 145, 44, 172, 139, 68, 217, 245, 119, 162, 111, 22, 154, 47, 141, 183, 129, 242, 221, 183, 222, 43, 200, 134, 233, 59, 104, 68 },
@@ -109,9 +108,7 @@ public:
   };  //  /valid
 
   struct invalid {
-  public:
     struct encode {
-    public:
       const std::vector<std::vector<uint8_t>> r = {
         //  R length is zero
         //  r: ""
@@ -184,7 +181,6 @@ public:
     };  //  /encode
 
     struct decode {
-    public:
       const std::vector<std::vector<uint8_t>> der = {
         //  DER sequence length is too short
         //  ffffffffffffff
@@ -239,12 +235,9 @@ public:
 void testChecking() {
   Serial.print("\n\n========== testChecking ==========\n");
 
-  auto count = TestCases().encoded.size();
   auto matches = 0;
-  for (auto i = 0; i < count; ++i) {
-    std::vector<uint8_t> encodedBytes = TestCases().encoded[i];
-    const auto checked = BIP66::check(encodedBytes);
-    checked ? ++matches : 0;
+  for (auto& e : TestCases::encoded) {
+    BIP66::check(e) ? ++matches : 0;
   };
   char buf[56];
     sprintf(buf, "\n%d out of %d checks successful!\n", matches, count);
@@ -444,21 +437,13 @@ void setup() {
   Serial.begin(115200);
 
   testChecking();
-  
   testEncodingPair();
-
   testEncodingRaw();
-
   testDecoding();
-
   testEncodeDecode();
-
   testShouldBeValid();
-
   testShouldBeValidPair();
-
   testShouldBeInvalidEncode();
-
   testShouldBeInvalidDecode();
 }
 
