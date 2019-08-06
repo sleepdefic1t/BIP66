@@ -13,6 +13,7 @@
 #ifndef BIP66_H
 #define BIP66_H
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 

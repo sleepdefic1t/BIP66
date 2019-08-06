@@ -12,7 +12,7 @@
 
 #include "bip66.h"
 
-#include <cstring>
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
