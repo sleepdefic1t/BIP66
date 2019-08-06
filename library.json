@@ -10,13 +10,16 @@
   "version": "0.3.0",
   "authors": [
     {
-      "name": "Ark Ecosystem",
-      "email": "info@ark.io",
-      "url": "https://github.com/ArkEcosystem"
+      "name": "Simon Downey",
+      "email": "simon@ark.io",
+      "url": "https://github.com/sleepdefic1t"
     }
   ],
   "frameworks": "arduino",
-  "platforms": "*",
+  "platforms": [
+    "espressif8266",
+    "espressif32"
+  ],
   "export": {
     "include": [
       "src/*",

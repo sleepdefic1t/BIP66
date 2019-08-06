@@ -1,10 +1,13 @@
 /**
- * This file is part of Ark Cpp Client.
- *
- * (c) Ark Ecosystem <info@ark.io>
- *
+ * bip66.cpp
+ * 
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
+ *
+ * author: Simon Downey <simon@ark.io>
+ *  
+ * BIP66: https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki
+ * adapted from: https://github.com/bitcoinjs/bip66/blob/master/index.js
  **/
 
 #include <Arduino.h>
