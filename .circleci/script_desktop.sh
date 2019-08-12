@@ -3,7 +3,7 @@
 # run desktop builds
 mkdir build
 cd build
-cmake ...
+cmake ..
 cmake --build .
 
 # run Gtest
