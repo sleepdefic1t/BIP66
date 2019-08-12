@@ -388,7 +388,7 @@ void testShouldBeValidPair() {
 
   auto matches = 0;
   for (auto& e : testCases::valid::r) {
-    std::vector<uint8_t> unencoded(ELEMENT_SIZE);
+    std::vector<uint8_t> unencoded(BIP66::ELEMENT_LEN);
     const auto wasEncoded = BIP66::encode(testCases::valid::r.at(matches),
                                           testCases::valid::s.at(matches),
                                           unencoded);
