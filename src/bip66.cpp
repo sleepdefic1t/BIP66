@@ -18,22 +18,22 @@
 
 namespace {
 
-const uint8_t SIG_COMPOUND_BYTE = 0x30;
-const uint8_t SIG_INTEGER_BYTE  = 0x02;
-const uint8_t SIG_NEGATIVE_BYTE = 0x80;  // (x & 0x80)
-const uint8_t SIG_ZERO_BYTE     = 0x00;
+static constexpr uint8_t SIG_COMPOUND_BYTE = 0x30;
+static constexpr uint8_t SIG_INTEGER_BYTE  = 0x02;
+static constexpr uint8_t SIG_NEGATIVE_BYTE = 0x80;  // (x & 0x80)
+static constexpr uint8_t SIG_ZERO_BYTE     = 0x00;
 
-const size_t SIG_SEQ_OFFSET   = 0;
-const size_t SIG_LEN_OFFSET   = 1;
-const size_t R_SEQ_OFFSET     = 2;
-const size_t R_LEN_OFFSET     = 3;
-const size_t R_BEGIN_OFFSET   = 4;
-const size_t S_LEN_OFFSET     = 5;  // + lenR
-const size_t S_BEGIN_OFFSET   = 6;  // + lenR
+static constexpr size_t SIG_SEQ_OFFSET   = 0;
+static constexpr size_t SIG_LEN_OFFSET   = 1;
+static constexpr size_t R_SEQ_OFFSET     = 2;
+static constexpr size_t R_LEN_OFFSET     = 3;
+static constexpr size_t R_BEGIN_OFFSET   = 4;
+static constexpr size_t S_LEN_OFFSET     = 5;  // + lenR
+static constexpr size_t S_BEGIN_OFFSET   = 6;  // + lenR
 
-/**/
+////////// BIP66::helpers //////////
 
-// BIP66::encode(const ElementBytes& r, const ElementBytes& s, SignatureBytes&)
+// BIP66::encode(const std::vector<uint8_t>& r, const std::vector<uint8_t>& s, std::vector<uint8_t>&)
 
 // Negative numbers are not allowed for R or S.
 inline bool isNegativeByte(const uint8_t& byte) {
@@ -42,10 +42,18 @@ inline bool isNegativeByte(const uint8_t& byte) {
 
 // Null bytes at the start of an Element is not allowed,
 // unless the Element would otherwise be interpreted as a negative number.
-inline bool isNegativeElement(const ElementBytes& element) {
-  return element.size() > 1 &&
-         element.at(0) == SIG_ZERO_BYTE &&
-         (element.at(1) & SIG_NEGATIVE_BYTE) == 0;
+inline bool isNegativeElement(const uint8_t* element, size_t len) {
+  return (len > 1) &&
+         (element[0] == SIG_ZERO_BYTE) &&
+         (element[1] & SIG_NEGATIVE_BYTE) == 0;
+}
+
+// Extract the lengths of the R or S elements.
+enum RSType { R = 0, S };
+inline size_t extractLen(const uint8_t* signature, RSType type) {
+  return type == R
+      ? signature[R_LEN_OFFSET]
+      : signature[S_LEN_OFFSET + signature[R_LEN_OFFSET]];
 }
 
 // Check whether the element is..
@@ -53,35 +61,20 @@ inline bool isNegativeElement(const ElementBytes& element) {
 // .. not too big.
 // .. not Null.
 // .. not Negative at the starting bytes.
-inline bool isValidElement(const ElementBytes& element) {
-  if (element.empty()) { return false; };
-  if (element.size() > ELEMENT_SIZE + 1) { return false; };
-  if (isNegativeByte(element.at(0))) { return false; };
-  if (isNegativeElement(element)) { return false; };
+inline bool isValidElement(const uint8_t* element, size_t len) {
+  if (len == 0) { return false; };
+  if (len > BIP66::ELEMENT_LEN + 1) { return false; };
+  if (isNegativeByte(element[0])) { return false; };
+  if (isNegativeElement(element, len)) { return false; };
   return true;
 }
 
-/**/
-
-// Extract the lengths of the R or S elements.
-enum RSType { R = 0, S };
-inline size_t extractLen(const SignatureBytes& signature, RSType type) {
-  switch (type) {
-    case R: return signature.at(R_LEN_OFFSET);
-    case S: return signature.at(S_LEN_OFFSET + signature.at(R_LEN_OFFSET));
-  };
-}
-
-/**/
-
-// BIP66::decode(const SignatureBytes&, ElementBytes& r, ElementBytes& s) 
-
 // Extract R and S elements from a Signature
-inline bool extractElements(const SignatureBytes& signature,
-                            ElementBytes& outR,
-                            ElementBytes& outS) {
-  const auto& lenR = extractLen(signature, R);
-  const auto& lenS = extractLen(signature, S);
+inline bool extractElements(const std::vector<uint8_t>& signature,
+                            std::vector<uint8_t>& outR,
+                            std::vector<uint8_t>& outS) {
+  const auto& lenR = extractLen(signature.data(), R);
+  const auto& lenS = extractLen(signature.data(), S);
 
   // Copy a reference to the R element.
   const auto& rBegin = &signature.at(R_BEGIN_OFFSET);
@@ -96,55 +89,66 @@ inline bool extractElements(const SignatureBytes& signature,
 
 /**/
 
-// bool BIP66::check(const SignatureBytes&)
+// bool BIP66::check(const std::vector<uint8_t>&)
 
 // Check that the Signature..
 // .. is validly constrained.
 // .. is of the correct type.
 // .. has a length that covers the entire Signature.
-inline bool isValidEncoding(const SignatureBytes& signature) {
-  return (SIG_MIN_LEN <= signature.size() && signature.size() <= SIG_MAX_LEN) &&
-          signature.at(SIG_SEQ_OFFSET) == SIG_COMPOUND_BYTE &&
-          signature.at(SIG_LEN_OFFSET) == signature.size() - R_SEQ_OFFSET;
+inline bool isValidEncoding(const uint8_t* signature, size_t len) {
+  return (signature != nullptr) &&
+          BIP66::SIG_MIN_LEN <= len && len <= BIP66::SIG_MAX_LEN &&
+          signature[SIG_SEQ_OFFSET] == SIG_COMPOUND_BYTE &&
+          signature[SIG_LEN_OFFSET] == len - R_SEQ_OFFSET;
 }
 
 // Make sure the length of the S element is still inside the signature.
-inline bool isValidLenS(const SignatureBytes& signature,
-                        const size_t& lenR) {
-  return (S_LEN_OFFSET + lenR < signature.size());
+inline bool isValidLenS(const uint8_t* signature, const size_t& lenR) {
+  return signature + S_LEN_OFFSET + lenR != nullptr;
 }
 
 // Verify that the length of the signature matches the sum of the length
 // of the elements.
-inline bool isValidEncodedLen(const std::vector<uint8_t>& signature,
+inline bool isValidEncodedLen(const uint8_t* signature,
                               const size_t& lenR,
-                              const size_t& lenS) { 
-  return ((lenR + lenS + S_BEGIN_OFFSET) == signature.size());
+                              const size_t& lenS) {
+  return signature + lenR + lenS + S_BEGIN_OFFSET != nullptr;
 }
 
 // Check whether the R element is..
 // .. a valid Element
 // .. an Integer
-inline bool isValidR(const SignatureBytes& signature, const size_t& lenR) {
-  return isValidElement({ &signature[R_BEGIN_OFFSET],
-                          &signature[R_BEGIN_OFFSET] + lenR }) &&
-         signature.at(R_SEQ_OFFSET) == SIG_INTEGER_BYTE;
+inline bool isValidR(const uint8_t* signature, const size_t& lenR) {
+return isValidElement(&signature[R_BEGIN_OFFSET], lenR) &&
+       signature[R_SEQ_OFFSET] == SIG_INTEGER_BYTE;
 }
+
+
 
 // Check whether the S element is..
 // .. a valid Element
 // .. an Integer
-inline bool isValidS(const SignatureBytes& signature,
+inline bool isValidS(const uint8_t* signature,
                      const size_t& lenR,
                      const size_t& lenS) {
-  return isValidElement({ &signature[lenR + S_BEGIN_OFFSET],
-                          &signature[lenR + S_BEGIN_OFFSET] + lenS }) &&
-         signature.at(lenR + R_BEGIN_OFFSET) == SIG_INTEGER_BYTE;
+  return isValidElement(
+      &signature[lenR + S_BEGIN_OFFSET], lenS) &&
+      signature[lenR + R_BEGIN_OFFSET] == SIG_INTEGER_BYTE;
 }
+// // Check whether the S element is..
+// // .. a valid Element
+// // .. an Integer
+// inline bool isValidS(const std::vector<uint8_t>& signature,
+//                      const size_t& lenR,
+//                      const size_t& lenS) {
+//   return isValidElement({ &signature[lenR + S_BEGIN_OFFSET],
+//                           &signature[lenR + S_BEGIN_OFFSET] + lenS }) &&
+//          signature.at(lenR + R_BEGIN_OFFSET) == SIG_INTEGER_BYTE;
+// }
 
 }  // namespace
 
-/**/
+////////// BIP66::helpers //////////
 
 // BIP66 Encoding.
 //
@@ -170,6 +174,8 @@ inline bool isValidS(const SignatureBytes& signature,
 // -62300 => 0xff0ca4
 struct BIP66;
 
+////////// BIP66::encode //////////
+
 // BIP66::encode
 // 
 // Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S] [sighash]
@@ -181,11 +187,11 @@ struct BIP66;
 //   the start, except a single one when the next byte has its highest bit set).
 // - S-length: 1-byte length descriptor of the S value that follows.
 // - S: arbitrary-length big-endian encoded S value. The same rules apply.
-bool BIP66::encode(const ElementBytes& r,
-                   const ElementBytes& s,
-                   SignatureBytes& outSignature) {
+bool BIP66::encode(const std::vector<uint8_t>& r,
+                   const std::vector<uint8_t>& s,
+                   std::vector<uint8_t>& outSignature) {
   // Ensure that each element is valid.
-  if (!isValidElement(r) || !isValidElement(s)) {
+  if (!isValidElement(r.data(), r.size()) || !isValidElement(s.data(), s.size())) {
     return false;
   };
 
@@ -221,23 +227,31 @@ bool BIP66::encode(const ElementBytes& r,
 // BIP66::encode
 //
 // Expects (R, S) elements of the raw signature to be positive DER integers.
-bool BIP66::encode(const uint8_t rawSignature[ELEMENT_SIZE],
-                   SignatureBytes& outSignature) {
+bool BIP66::encode(const uint8_t* rawSignature,
+                   std::vector<uint8_t>& outSignature) {
   return BIP66::encode(
-      { &rawSignature[0], &rawSignature[ELEMENT_SIZE] },
-      { &rawSignature[ELEMENT_SIZE], &rawSignature[ELEMENT_SIZE * 2] },
+      { &rawSignature[0], &rawSignature[BIP66::ELEMENT_LEN] },
+      { &rawSignature[BIP66::ELEMENT_LEN], &rawSignature[BIP66::ELEMENT_LEN * 2] },
       outSignature);
 }
+
+////////// /BIP66::encode //////////
+
+////////// BIP66::decode //////////
 
 // BIP66::decode
 //
 // Decode the R and S elements from a Signature using validation.
-bool BIP66::decode(const SignatureBytes& signature,
-                   ElementBytes& outR,
-                   ElementBytes& outS) {
+bool BIP66::decode(const std::vector<uint8_t>& signature,
+                   std::vector<uint8_t>& outR,
+                   std::vector<uint8_t>& outS) {
   // True if signature is DER encoded and valid Elements were extracted.
   return check(signature) && extractElements(signature, outR, outS);
 }
+
+////////// /BIP66::decode //////////
+
+////////// BIP66::check //////////
 
 // BIP66::Check
 //
@@ -245,8 +259,18 @@ bool BIP66::decode(const SignatureBytes& signature,
 // - Ensure that each Element is..
 // .. of the correct length corresponding to the Signature.
 // .. a valid Element.
-bool BIP66::check(const SignatureBytes& signature) {
-  if (!isValidEncoding(signature)) {
+bool BIP66::check(const std::vector<uint8_t>& signature) {
+  return BIP66::check(signature.data(), signature.size());
+}
+
+// BIP66::check
+//
+// - Check that the Signature has valid DER encoding.
+// - Ensure that each Element is..
+// .. of the correct length corresponding to the Signature.
+// .. a valid Element.
+bool BIP66::check(const uint8_t* signature, size_t len) {
+  if (!isValidEncoding(signature, len)) {
     return false;
   };
 
@@ -260,6 +284,7 @@ bool BIP66::check(const SignatureBytes& signature) {
     return false;
   };
 
-  // Check that R and S are valid Elements and are Integers.
   return (isValidR(signature, lenR) && isValidS(signature, lenR, lenS));
 }
+
+////////// /BIP66::check //////////

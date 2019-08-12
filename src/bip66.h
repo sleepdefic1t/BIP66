@@ -17,28 +17,24 @@
 #include <cstdint>
 #include <vector>
 
-static const size_t ELEMENT_SIZE  = 32U;
-typedef std::vector<uint8_t> ElementBytes;
-
-static const size_t SIG_MIN_LEN        = 8U;
-static const size_t SIG_MAX_LEN        = 72U;
-typedef std::vector<uint8_t> SignatureBytes;
-
-/**/
-
 struct BIP66 {
-  static bool encode(const ElementBytes& r,
-                     const ElementBytes& s,
-                     SignatureBytes& outSignature);
+  static constexpr size_t ELEMENT_LEN = 32U;
+  static constexpr size_t SIG_MIN_LEN = 8U;
+  static constexpr size_t SIG_MAX_LEN = 72U;
 
-  static bool encode(const uint8_t rawSignature[ELEMENT_SIZE * 2],
-                     SignatureBytes& outSignature);
+  static bool encode(const std::vector<uint8_t>& r,
+                     const std::vector<uint8_t>& s,
+                     std::vector<uint8_t>& outSignature);
 
-  static bool decode(const SignatureBytes& signature,
-                     ElementBytes& outR,
-                     ElementBytes& outS);
+  static bool encode(const uint8_t* rawSignature,
+                     std::vector<uint8_t>& outSignature);
 
-  static bool check (const SignatureBytes& signature);
+  static bool decode(const std::vector<uint8_t>& signature,
+                     std::vector<uint8_t>& outR,
+                     std::vector<uint8_t>& outS);
+
+  static bool check (const std::vector<uint8_t>& signature);
+  static bool check(const uint8_t* signature, size_t len);
 };
 
 #endif

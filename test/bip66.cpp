@@ -245,7 +245,7 @@ const std::vector<std::vector<uint8_t>> der {
 
 TEST(bip66, check) {
   auto matches = 0;
-  for (auto& e : testCases::encoded) {
+  for (auto& e : testCases::encoded) {    
     BIP66::check(e) ? ++matches : 0;
   };
   ASSERT_EQ(matches, testCases::encoded.size());
@@ -256,13 +256,15 @@ TEST(bip66, check) {
 TEST(bip66, decode) {
   auto matches = 0;
   for (auto& e : testCases::encoded) {
-    std::vector<uint8_t> r(ELEMENT_SIZE);
-    std::vector<uint8_t> s(ELEMENT_SIZE);
+    std::vector<uint8_t> r;
+    r.reserve(BIP66::ELEMENT_LEN);
+    std::vector<uint8_t> s;
+    s.reserve(BIP66::ELEMENT_LEN);
     const auto isDecoded = BIP66::decode(e, r, s);
 
     std::vector<uint8_t> unencoded;
     unencoded.insert(unencoded.begin(), r.begin(), r.end());
-    unencoded.insert(unencoded.begin() + ELEMENT_SIZE, s.begin(), s.end());
+    unencoded.insert(unencoded.begin() + BIP66::ELEMENT_LEN, s.begin(), s.end());
  
     if (isDecoded && unencoded == testCases::decoded.at(matches)) {
       ++matches;
@@ -277,13 +279,11 @@ TEST(bip66, encode_from_pair) {
   auto matches = 0;
   for (auto& e : testCases::decoded) {
     std::vector<uint8_t> r;
-    r.reserve(ELEMENT_SIZE);
     std::vector<uint8_t> s;
-    s.reserve(ELEMENT_SIZE);
-    r.insert(r.begin(), e.begin(), e.begin() + ELEMENT_SIZE);
-    s.insert(s.begin(), e.begin() + ELEMENT_SIZE, e.end());
+    r.insert(r.begin(), e.begin(), e.begin() + BIP66::ELEMENT_LEN);
+    s.insert(s.begin(), e.begin() + BIP66::ELEMENT_LEN, e.end());
 
-    std::vector<uint8_t> encoded(ELEMENT_SIZE * 2);
+    std::vector<uint8_t> encoded(BIP66::ELEMENT_LEN * 2);
     const auto wasEncoded = BIP66::encode(r, s, encoded);
  
     if (wasEncoded &&
@@ -301,8 +301,6 @@ TEST(bip66, encode_from_raw) {
   auto matches = 0;
   for (auto& e : testCases::decoded) {
     std::vector<uint8_t> signature;
-    signature.reserve(SIG_MAX_LEN);
-
     const auto encoded = BIP66::encode(e.data(), signature);
 
     if (encoded &&
@@ -322,15 +320,13 @@ TEST(bip66, encoding_decoding) {
     const auto checked = BIP66::check(e);
 
     std::vector<uint8_t> r;
-    r.reserve(ELEMENT_SIZE);
     std::vector<uint8_t> s;
-    s.reserve(ELEMENT_SIZE);
     const auto wasDecoded = BIP66::decode(e, r, s);
 
-    std::vector<uint8_t> encoded(ELEMENT_SIZE * 2);
+    std::vector<uint8_t> encoded(BIP66::ELEMENT_LEN * 2);
     const auto wasEncoded = BIP66::encode(r, s, encoded);
 
-    std::vector<uint8_t> temp(SIG_MAX_LEN);
+    std::vector<uint8_t> temp(BIP66::SIG_MAX_LEN);
     const auto wasReDecoded = BIP66::encode(r, s, temp);
  
     (checked && wasDecoded && wasEncoded && wasReDecoded) ? ++matches : 0;
@@ -341,17 +337,15 @@ TEST(bip66, encoding_decoding) {
 /**/
 
 TEST(bip66, should_be_valid_der) {
-  auto matches = 0;
+  auto matches = 0U;
   for (auto& e : testCases::valid::der) {
     const auto wasChecked = BIP66::check(e);
 
     std::vector<uint8_t> r;
-    r.reserve(ELEMENT_SIZE);
     std::vector<uint8_t> s;
-    s.reserve(ELEMENT_SIZE);
     const auto wasDecoded = BIP66::decode(e, r, s);
 
-    std::vector<uint8_t> temp(SIG_MAX_LEN);
+    std::vector<uint8_t> temp(BIP66::SIG_MAX_LEN);
     const auto wasEncoded = BIP66::encode(r, s, temp);
 
     (wasChecked && wasDecoded && wasEncoded) ? ++matches : 0;
@@ -364,10 +358,11 @@ TEST(bip66, should_be_valid_der) {
 TEST(bip66, should_be_valid_pair) {
   auto matches = 0;
   for (auto& e : testCases::valid::r) {
-    std::vector<uint8_t> unencoded(ELEMENT_SIZE);
-    const auto wasEncoded = BIP66::encode(testCases::valid::r.at(matches),
-                                          testCases::valid::s.at(matches),
-                                          unencoded);
+    std::vector<uint8_t> unencoded(BIP66::ELEMENT_LEN);
+    const auto wasEncoded = BIP66::encode(
+        e,
+        testCases::valid::s.at(matches),
+        unencoded);
 
     if (wasEncoded && (BIP66::check(unencoded))) {
       ++matches;
@@ -382,13 +377,13 @@ TEST(bip66, should_be_invalid_encode) {
   auto misses = 0;
   for (auto& e : testCases::invalid::encoded::r) {
     std::vector<uint8_t> signature;
-    signature.reserve(SIG_MAX_LEN);
+    signature.reserve(BIP66::SIG_MAX_LEN);
 
     const auto isInvalid = !BIP66::encode(
-                              testCases::invalid::encoded::r.at(misses),
-                              testCases::invalid::encoded::s.at(misses),
-                              signature) ||
-                           !BIP66::check(signature);
+        e,
+        testCases::invalid::encoded::s.at(misses),
+        signature) ||
+        !BIP66::check(signature);
 
     isInvalid ? ++misses : 0;
   };

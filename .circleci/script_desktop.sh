@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 # run desktop builds
-cmake .
+mkdir build
+cd build
+cmake ...
 cmake --build .
 
 # run Gtest
-./test/BIP66-tests
+./test/bip66_tests
