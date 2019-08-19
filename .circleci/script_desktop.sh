@@ -3,7 +3,7 @@
 # run desktop builds
 mkdir build
 cd build
-cmake .. -DUNIT_TEST
+cmake .. -DUNIT_TESTS=true
 cmake --build .
 
 # run Gtest
