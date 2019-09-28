@@ -1,6 +1,9 @@
+#!/usr/bin/env bash
+
 # run desktop builds
-cmake .
+mkdir build && cd build
+cmake .. -DBUILD_BIP66_TESTS=ON
 cmake --build .
 
-# run Gtest
-./test/BIP66-tests
+# run tests
+./test/bip66_tests
