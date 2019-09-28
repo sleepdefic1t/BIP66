@@ -13,6 +13,12 @@ jobs:
       - run:
           name: Build
           command: ./.circleci/script_arduino.sh
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+          # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
   build-platformio-default:
     machine: true
     steps:
@@ -26,6 +32,12 @@ jobs:
       - run:
           name: Build
           command: ./.circleci/script_platform_io.sh
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+          # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
   build-linux-gcc7:
     machine: true
     steps:
@@ -50,6 +62,12 @@ jobs:
       - run:
           name: Codecov upload
           command: bash <(curl -s https://codecov.io/bash)
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+          # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
   build-linux-clang-5:
     machine: true
     steps:
@@ -71,6 +89,12 @@ jobs:
       - run:
           name: Build
           command: ./.circleci/script_desktop.sh
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+          # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
   # build-macos-9-2:
   #   macos:
   #     xcode: "9.2.0"
