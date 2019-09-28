@@ -72,7 +72,6 @@ static bool isValidElement(const uint8_t *element, const uint8_t length) {
     return !(length > 1U &&
             element[0] == ELEMENT_PADDING &&
             ((element[1] & ELEMENT_NEGATIVE) == 0U));
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
