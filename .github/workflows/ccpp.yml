@@ -1,0 +1,99 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches:
+      - "*"
+      - "*/*"
+  pull_request:
+    types: [ready_for_review, synchronize, opened]
+
+jobs:
+  platformio:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install dependencies
+        run: |
+          sudo pip install -U platformio
+          platformio update
+          git submodule update --init --recursive
+      - name: Build
+        run: |
+          platformio run
+          platformio run -d ./test
+
+  linux-gcc7:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install dependencies
+        run: |
+            sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+            sudo apt-get update
+            sudo apt-get -y install g++-7 cmake
+      - name: Build
+        run: |
+          mkdir build && cd build
+          cmake .. && cmake --build .
+      - name: Run Tests
+        run: ./test/ark_cpp_crypto_tests
+
+  linux-clang-5:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install dependencies
+        run: |
+            sudo apt-get update
+            sudo apt-get -y install clang-5.0 clang-format-5.0 cmake
+      - name: Build
+        run: |
+          mkdir build && cd build
+          cmake .. && cmake --build .
+      - name: Run Tests
+        run: ./test/ark_cpp_crypto_tests
+
+  macos:
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - run: COMPILER=clang++
+      - name: Install dependencies
+        run: brew install cmake
+      - name: Build
+        run: |
+          mkdir build && cd build
+          cmake .. && cmake --build .
+      - name: Run Tests
+        run: ./test/ark_cpp_crypto_tests
+        
+  windows-debug:
+    runs-on: windows-2016
+    strategy:
+      matrix:
+        build: [Debug]
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup MSBuild.exe
+        uses: warrenbuckley/Setup-MSBuild@v1
+
+      - name: Install
+        run: git submodule update --init --recursive
+
+      - name: CMake
+        run: cmake -G "Visual Studio 15 2017 Win64" .
+
+      - name: Build Solution
+        shell: cmd
+        run: |
+         msbuild "%GITHUB_WORKSPACE%\BIP66.sln"
+
+      - name: Test
+        run: call "%GITHUB_WORKSPACE%\test\Debug\bip66_tests.cmd"
