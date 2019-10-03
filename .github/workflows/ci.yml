@@ -1,4 +1,4 @@
-name: BIP66 Build & Unit Tests
+name: GitHub Actions
 
 on:
   push:
@@ -50,7 +50,6 @@ jobs:
         run: |
           platformio run
           platformio run -d ./test
-
 
   linux-gcc7:
     runs-on: ubuntu-latest

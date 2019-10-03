@@ -4,7 +4,8 @@
 
 ANS.1 DER Encoder/Decoder based on [Bitcoin BIP66](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki).
 
-[![Build Status](https://badgen.now.sh/circleci/github/sleepdefic1t/BIP66)](https://circleci.com/gh/sleepdefic1t/BIP66)
+[![GitHub Actions](https://github.com/sleepdefic1t/BIP66/workflows/GitHub%20Actions/badge.svg)](https://github.com/sleepdefic1t/BIP66)
+[![CodeFactor](https://www.codefactor.io/repository/github/sleepdefic1t/bip66/badge)](https://www.codefactor.io/repository/github/sleepdefic1t/bip66)
 [![Latest Version](https://badgen.now.sh/github/release/sleepdefic1t/BIP66)](https://github.com/sleepdefic1t/BIP66/releases)
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
 
@@ -79,7 +80,7 @@ This build should be done out of source.
 #### Building the running Tests
 
 1) `mkdir build && cd build`
-2) `cmake .. -DBUILD_BIP66_TESTS=ON`
+2) `cmake -DBUILD_BIP66_TESTS=ON ..`
 3) `cmake --build .`
 4) `./test/bip66_tests`
 
@@ -100,9 +101,9 @@ uint8_t s[32] = {
     14, 223, 55, 104, 157, 39, 134, 252, 105, 10, 249, 240, 246, 250, 31, 98, 156, 149, 105, 80, 57, 246, 72, 166, 212, 85, 72, 67, 2, 64, 46, 147
 };
 
-uint8_t signature[72];  // max signature length
+uint8_t signature[72];
 
-const bool success = bip66::encode(r, 32, s, 32, signature, 72U);
+const bool success = bip66::encode(r, 32, s, 32, signature);
 ```
 
 ---
@@ -119,7 +120,7 @@ uint8_t derEncodedSignature[70] = {
 uint8_t r[32];
 uint8_t s[32];
 
-const bool success = bip66::decode(derEncodedSignature, 70U, r, s);
+const bool success = bip66::decode(derEncodedSignature, 70, r, s);
 ```
 
 ---
@@ -133,7 +134,7 @@ const uint8_t derEncodedSignature[70] = {
     48, 68, 2, 32, 33, 112, 79, 42, 219, 46, 74, 16, 163, 221, 193, 215, 214, 69, 82, 184, 6, 28, 5, 246, 209, 42, 22, 140, 105, 9, 28, 117, 88, 29, 97, 20, 2, 32, 14, 223, 55, 104, 157, 39, 134, 252, 105, 10, 249, 240, 246, 250, 31, 98, 156, 149, 105, 80, 57, 246, 72, 166, 212, 85, 72, 67, 2, 64, 46, 147
 };
 
-const bool success = bip66::check(derEncodedSignature, 70U);
+const bool success = bip66::check(derEncodedSignature, 70);
 ```
 
 ---
