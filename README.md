@@ -6,6 +6,7 @@ ANS.1 DER Encoder/Decoder based on [Bitcoin BIP66](https://github.com/bitcoin/bi
 
 [![GitHub Actions](https://github.com/sleepdefic1t/BIP66/workflows/GitHub%20Actions/badge.svg)](https://github.com/sleepdefic1t/BIP66)
 [![CodeFactor](https://www.codefactor.io/repository/github/sleepdefic1t/bip66/badge)](https://www.codefactor.io/repository/github/sleepdefic1t/bip66)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3828f000e03d45ba86997addd00834c0)](https://www.codacy.com/manual/sleepdefic1t/BIP66)
 [![Latest Version](https://badgen.now.sh/github/release/sleepdefic1t/BIP66)](https://github.com/sleepdefic1t/BIP66/releases)
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
 
