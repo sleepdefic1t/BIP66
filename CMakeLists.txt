@@ -1,4 +1,6 @@
+
 cmake_minimum_required(VERSION 3.2)
+
 project(BIP66)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -17,11 +19,9 @@ if (MSVC)
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 endif()
 
-# clone submodules
-execute_process(
-	COMMAND git submodule update --init --recursive
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-)
-
 add_subdirectory(src)
-add_subdirectory(test)
+
+option(BUILD_BIP66_TESTS "BIP66 tests disabled by default" OFF)
+if(BUILD_BIP66_TESTS)
+	add_subdirectory(test)
+endif()

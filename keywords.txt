@@ -6,7 +6,7 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-BIP66	KEYWORD1
+bip66	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
