@@ -3,10 +3,9 @@ name: GitHub Actions
 on:
   push:
     branches:
-      - "*"
-      - "*/*"
+      - "**"
   pull_request:
-    types: [ready_for_review, synchronize, opened]
+    types: [opened, edited, ready_for_review]
 
 jobs:
   arduino-build:
