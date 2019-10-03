@@ -1,0 +1,133 @@
+name: BIP66 Build & Unit Tests
+
+on:
+  push:
+    branches:
+      - "*"
+      - "*/*"
+  pull_request:
+    types: [ready_for_review, synchronize, opened]
+
+jobs:
+  arduino-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Arduino IDE & ESP32 Package
+        run: |
+          sudo apt-get install bzip2
+          yes | sudo apt install python-pip
+          pip install pyserial
+          pip install --upgrade pip
+          wget -O arduino-cli-linux64.tar.bz2 https://github.com/arduino/arduino-cli/releases/download/0.3.3-alpha.preview/arduino-cli-0.3.3-alpha.preview-linux64.tar.bz2
+          bunzip2 arduino-cli-linux64.tar.bz2
+          tar xvf arduino-cli-linux64.tar
+          sudo mv arduino-cli-0.3.3-alpha.preview-linux64 /usr/local/share/arduino-cli
+          sudo ln -s /usr/local/share/arduino-cli /usr/local/bin/arduino-cli
+          printf "board_manager:
+            additional_urls:
+              - https://dl.espressif.com/dl/package_esp32_index.json" >> .cli-config.yml
+          sudo mv .cli-config.yml /usr/local/share/
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32
+      - name: Build
+        run: |
+          mkdir -p ~/Arduino/libraries/BIP66/
+          mv ${GITHUB_WORKSPACE}/* ~/Arduino/libraries/BIP66
+          arduino-cli compile --output temp.bin -b esp32:esp32:esp32 ~/Arduino/libraries/BIP66/examples/BIP66/BIP66.ino --debug
+
+  platformio-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Platformio
+        run: |
+          sudo pip install -U platformio
+          platformio update
+      - name: Run Source and Test Builds
+        run: |
+          platformio run
+          platformio run -d ./test
+
+
+  linux-gcc7:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Dependencies
+        run: |
+            sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+            sudo apt-get update
+            sudo apt-get -y install g++-7 cmake
+      - name: CMake
+        run: |
+          mkdir build
+          cd build
+          cmake -DBUILD_BIP66_TESTS=ON ..
+          cmake --build .
+      - name: Run Tests
+        run: |
+          cd build
+          ./test/bip66_tests
+
+  linux-clang-5:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install clang-5.0 clang-format-5.0 cmake
+      - name: CMake
+        run: |
+          mkdir build
+          cd build
+          cmake -DBUILD_BIP66_TESTS=ON ..
+          cmake --build .
+      - name: Run tests
+        run: |
+          cd build
+          ./test/bip66_tests
+
+  macos:
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - run: COMPILER=clang++
+      - name: Install dependencies
+        run: brew install cmake
+      - name: CMake
+        run: |
+          mkdir build
+          cd build
+          cmake -DBUILD_BIP66_TESTS=ON ..
+          cmake --build .
+      - name: Run Tests
+        run: |
+          cd build
+          ./test/bip66_tests
+
+  windows:
+    runs-on: windows-2016
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [Debug, Release]
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup MSBuild.exe
+        uses: warrenbuckley/Setup-MSBuild@v1
+      - name: Install
+        run: git submodule update --init --recursive
+      - name: CMake
+        run: cmake -G "Visual Studio 15 2017 Win64" -DBUILD_BIP66_TESTS=ON .
+      - name: Build Solution
+        run: msbuild "%GITHUB_WORKSPACE%\BIP66.sln"
+      - name: Run Tests
+        run: call "%GITHUB_WORKSPACE%\test\Debug\bip66_tests"
