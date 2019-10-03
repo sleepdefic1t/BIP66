@@ -41,8 +41,7 @@ bool encode(const uint8_t *rElement,
             const uint8_t rElementLength,
             const uint8_t *sElement,
             const uint8_t sElementLength,
-            uint8_t *outSignature,
-            const uint8_t maxOutLength);
+            uint8_t *outSignature);
 
 bool decode(const uint8_t *signature,
             const uint8_t signatureLength,

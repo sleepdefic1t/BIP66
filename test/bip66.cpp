@@ -41,15 +41,14 @@ TEST(BIP66, encode) {
     const uint8_t count     = ENC_DEC_COUNT;
     uint8_t matches         = 0U;
 
-    std::array<uint8_t, ENCODED_LENGTH> encodedBuffer;
+    std::array<uint8_t, ENCODED_LENGTH> signature {};
 
     while (++matches < count &&
            bip66::encode(test_cases::decoded[matches],
                          ELEMENT_LENGTH,
                          &test_cases::decoded[matches][ELEMENT_LENGTH],
                          ELEMENT_LENGTH,
-                         encodedBuffer.data(),
-                         ENCODED_LENGTH)) {};
+                         signature.data())) {};
 
   ASSERT_EQ(matches, count);
 }
@@ -60,15 +59,14 @@ TEST(BIP66, encode_valid) {
     const uint8_t count     = VALID_ENCODED_COUNT;
     uint8_t matches         = 0U;
 
-    std::array<uint8_t, ENCODED_MAX_LENGTH> encodedBuffer;
+    std::array<uint8_t, ENCODED_MAX_LENGTH> signature {};
 
     while (++matches < count &&
            bip66::encode(&test_cases::valid::r[matches][1],
                          test_cases::valid::r[matches][0],
                          &test_cases::valid::s[matches][1],
                          test_cases::valid::s[matches][0],
-                         encodedBuffer.data(),
-                         ENCODED_MAX_LENGTH)) {};
+                         signature.data())) {};
 
     ASSERT_EQ(matches, count);
 }
@@ -79,15 +77,14 @@ TEST(BIP66, encode_invalid) {
     const uint8_t count     = INVALID_RS_COUNT;
     uint8_t misses          = 0U;
 
-    std::array<uint8_t, ENCODED_MAX_LENGTH> encodedBuffer;
+    std::array<uint8_t, ENCODED_MAX_LENGTH> signature {};
 
     while (++misses < count &&
            !bip66::encode(&test_cases::invalid::r[misses][1],
                           test_cases::invalid::r[misses][0],
                           &test_cases::invalid::s[misses][1],
                           test_cases::invalid::s[misses][0],
-                          encodedBuffer.data(),
-                          ENCODED_MAX_LENGTH)) {};
+                          signature.data())) {};
 
     ASSERT_EQ(misses, count);
 }
@@ -97,7 +94,7 @@ TEST(BIP66, encode_invalid) {
 TEST(BIP66, decode) {
     uint8_t matches = 0U;
 
-    std::array<uint8_t, DECODED_LENGTH> rsBuffer;
+    std::array<uint8_t, DECODED_LENGTH> rsBuffer {};
 
     while (bip66::decode(test_cases::encoded[++matches],
                          ENCODED_LENGTH,
@@ -112,7 +109,7 @@ TEST(BIP66, decode_valid) {
     const uint8_t count     = VALID_ENCODED_COUNT;
     uint8_t matches         = 0U;
 
-    std::array<uint8_t, DECODED_LENGTH + 1U> rsBuffer;
+    std::array<uint8_t, DECODED_LENGTH + 1U> rsBuffer {};
 
     while (++matches < count &&
            bip66::decode(&test_cases::valid::encoded[matches][1],
@@ -128,7 +125,7 @@ TEST(BIP66, decode_invalid) {
     const uint8_t count     = VALID_ENCODED_COUNT;
     uint8_t misses          = 0U;
 
-    std::array<uint8_t, DECODED_LENGTH> rsBuffer;
+    std::array<uint8_t, DECODED_LENGTH> rsBuffer {};
 
     while (++misses < count &&
            !bip66::decode(&test_cases::invalid::encoded[misses][1],

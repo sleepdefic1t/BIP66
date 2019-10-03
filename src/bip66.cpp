@@ -77,16 +77,15 @@ static bool isValidElement(const uint8_t *element, const uint8_t length) {
 ////////////////////////////////////////////////////////////////////////////////
 
 // Copy the element to a buffer.
-// Element is padded and length is incremented if needed.
-static void copyElement(const uint8_t *src, uint8_t *dst, uint8_t& len) {
-    if (len > 1U && (src[0] & ELEMENT_NEGATIVE) != 0U) {
-        dst[0] = ELEMENT_PADDING;
-        memmove(&dst[1], src, len);
-        len++;
+// False if first bytes Negative.
+static bool copyElement(const uint8_t *src, uint8_t *dst, uint8_t& len) {
+    if ((src[0] & ELEMENT_NEGATIVE) != 0U) {
+        return false;
     }
-    else {
-        memmove(dst, src, len);
-    }
+
+    memmove(dst, src, len);
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -136,49 +135,56 @@ bool encode(const uint8_t *rElement,
             const uint8_t rElementLength,
             const uint8_t *sElement,
             const uint8_t sElementLength,
-            uint8_t *outSignature,
-            const uint8_t maxOutLength) {
-    if (maxOutLength < MIN_SIG_LENGTH || maxOutLength > MAX_SIG_LENGTH) {
+            uint8_t *outSignature) {
+    if (outSignature == nullptr) {
         return false;
     }
 
-    std::array<std::array<uint8_t, ELEMENT_LENGTH + 1U> , 2U>  rsBuffer;
+    if (!isValidElement(rElement, rElementLength) ||
+        !isValidElement(sElement, sElementLength)) {
+        return false;
+    }
+
+    std::array<std::array<uint8_t, ELEMENT_LENGTH + 1U> , 2U>  rs {};
 
     auto lenR = rElementLength;
     auto lenS = sElementLength;
 
-    // Copy the Elements, padding if necessary.
-    copyElement(rElement, rsBuffer[0].data(), lenR);
-    copyElement(sElement, rsBuffer[1].data(), lenS);
-
-    if (!isValidElement(rsBuffer[0].data(), lenR) ||
-        !isValidElement(rsBuffer[1].data(), lenS)) {
+    // Copy the Elements, checking for NULL
+    if (!copyElement(rElement, rs[0].data(), lenR) ||
+        !copyElement(sElement, rs[1].data(), lenS)) {
         return false;
     }
 
-    auto it = rsBuffer[0].data();
+    auto it = rs[0].data();
     while (*++it == 0U && *(it + 1U) < ELEMENT_NEGATIVE && --lenR > 1U) {};
 
-    it = rsBuffer[1].data();
+    it = rs[1].data();
     while (*++it == 0U && *(it + 1U) < ELEMENT_NEGATIVE && --lenS > 1U) {};
+
+    lenR = std::max(lenR, (uint8_t)1U);
+    lenS = std::max(lenS, (uint8_t)1U);
 
     const auto outLen = S_BEGIN_OFFSET + lenR + lenS;
 
+    if (outLen < MIN_SIG_LENGTH || outLen > MAX_SIG_LENGTH) {
+        return false;
+    }
+
     // 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
-    outSignature[SIG_SEQ_OFFSET]    = SIG_COMPOUND;             // 1 Byte
-    outSignature[SIG_LEN_OFFSET]    = outLen - R_SEQ_OFFSET;    // 1 Byte
+    outSignature[SIG_SEQ_OFFSET]    = SIG_COMPOUND;                 // 1 Byte
+    outSignature[SIG_LEN_OFFSET]    = outLen - R_SEQ_OFFSET;        // 1 Byte
 
-    outSignature[R_SEQ_OFFSET]      = ELEMENT_INTEGER;          // 1 Byte
-    outSignature[R_LEN_OFFSET]      = lenR;                     // 1 Byte
-    memmove(&outSignature[R_BEGIN_OFFSET],                      // 32<=>33 Bytes
-            rsBuffer[0].data(), lenR);  
+    outSignature[R_SEQ_OFFSET]      = ELEMENT_INTEGER;              // 1 Byte
+    outSignature[R_LEN_OFFSET]      = lenR;                         // 1 Byte
+    memmove(&outSignature[R_BEGIN_OFFSET], rs[0].data(), lenR);     // 32 <=> 33
 
-    outSignature[R_BEGIN_OFFSET + lenR] = ELEMENT_INTEGER;      // 1 Byte
-    outSignature[S_LEN_OFFSET + lenR] = lenS;                   // 1 Byte
-    memmove(&outSignature[S_BEGIN_OFFSET + lenR],               // 32<=>33 Bytes
-            rsBuffer[1].data(), lenS);
+    outSignature[R_BEGIN_OFFSET + lenR] = ELEMENT_INTEGER;          // 1 Byte
+    outSignature[S_LEN_OFFSET + lenR]   = lenS;                     // 1 Byte
+    memmove(&outSignature[S_BEGIN_OFFSET + lenR],                   // 32 <=> 33
+            rs[1].data(), lenS);
 
-  return check(outSignature, outLen);                           // 70<=>72 Bytes
+  return check(outSignature, outLen);                               // 70 <=> 72
 }
 
 ////////////////////////////////////////////////////////////////////////////////
