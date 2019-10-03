@@ -21,7 +21,7 @@ endif()
 
 add_subdirectory(src)
 
-option(BUILD_BIP66_TESTS "Disable BIP66 test by defaul" OFF)
+option(BUILD_BIP66_TESTS "BIP66 tests disabled by default" OFF)
 if(BUILD_BIP66_TESTS)
 	add_subdirectory(test)
 endif()

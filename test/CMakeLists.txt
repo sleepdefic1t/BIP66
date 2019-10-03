@@ -24,4 +24,5 @@ add_subdirectory(../extern/googletest [EXCLUDE_FROM_ALL])
 find_library(BIP66 PUBLIC)
 
 add_executable(${PROJECT_NAME} bip66.cpp)
+
 target_link_libraries(${PROJECT_NAME} BIP66 gtest gtest_main)
