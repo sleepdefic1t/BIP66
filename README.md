@@ -80,7 +80,7 @@ This build should be done out of source.
 2) `cmake ..`
 3) `cmake --build .`
 
-**Building and Running Tests**
+**Building and Run Tests**
 
 1) `mkdir build && cd build`
 2) `cmake -DUNIT_TEST=ON ..`
