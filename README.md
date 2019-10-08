@@ -1,7 +1,7 @@
 # BIP66
 
 <p align="center">
-    <img src="https://github.com/sleepdefic1t/BIP66/raw/master/bip66_logo.png" width="320 " height="320"/>
+    <img src="https://github.com/sleepdefic1t/BIP66/raw/master/bip66_logo.png" width=50% height=auto/>
 </p>
 
 > A simple Bitcoin BIP66 Implementation in C++ for the ARK Ecosystem.
@@ -85,7 +85,7 @@ This build should be done out of source.
 #### Building the running Tests
 
 1) `mkdir build && cd build`
-2) `cmake -DBUILD_BIP66_TESTS=ON ..`
+2) `cmake -DUNIT_TEST=ON ..`
 3) `cmake --build .`
 4) `./test/bip66_tests`
 

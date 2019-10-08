@@ -7,12 +7,17 @@
     "type": "git",
     "url": "https://github.com/sleepdefic1t/bip66.git"
   },
-  "version": "0.3.0",
+  "version": "0.3.1",
   "authors": [
     {
       "name": "Ark Ecosystem",
       "email": "info@ark.io",
       "url": "https://github.com/ArkEcosystem"
+    },
+    {
+      "name": "Simon Downey",
+      "email": "simon@ark.io",
+      "url": "https://github.com/sleepdefic1t"
     }
   ],
   "frameworks": "arduino",
