@@ -49,6 +49,8 @@ ANS.1 DER Encoder/Decoder based on [Bitcoin BIP66](https://github.com/bitcoin/bi
 
 ### Arduino IDE
 
+Download BIP66 from the Arduino IDE Library manager, or clone/download this repo and place it in the Arduino Libraries directory.  (_e.g. `~Documents/Arduino/libraries`_)
+
 1) Open the `BIP66.ino` sketch in the `examples/BIP66` folder.  
 2) Select your board from the Arduino IDE
 3) Upload the sketch.
@@ -57,32 +59,28 @@ ANS.1 DER Encoder/Decoder based on [Bitcoin BIP66](https://github.com/bitcoin/bi
 
 ### PlatformIO
 
-#### Building the Library
+**Building the Library**
+-    `pio run`
 
-- `pio run`
+**Building the Library with Tests**
+-    `pio run -t test/`
 
-#### Building the Library with Tests
-
-- `pio run -t test/`
-
-#### Uploading and Running Tests
-
-- `pio run -t test/ -e esp32 -t upload`
+**Uploading and Running Tests**
+-    `pio run -t test/ -e esp32 -t upload`
 
 ---
 
-### OS Builds
+### CMake
 
 Operating System builds like Linux, macOS, and Windows use CMake to build this BIP66 library.  
 This build should be done out of source.
 
-#### Building the Library
-
+**Building the Library**
 1) `mkdir build && cd build`
 2) `cmake ..`
 3) `cmake --build .`
 
-#### Building the running Tests
+**Building and Running Tests**
 
 1) `mkdir build && cd build`
 2) `cmake -DUNIT_TEST=ON ..`
