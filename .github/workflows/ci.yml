@@ -8,9 +8,9 @@ on:
     types: [opened, edited, ready_for_review]
 
 jobs:
+
   arduino-build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v1
       - name: Install Arduino IDE & ESP32 Package
@@ -38,7 +38,6 @@ jobs:
 
   platformio-build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v1
       - name: Install Platformio
@@ -52,7 +51,6 @@ jobs:
 
   linux-gcc7:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v1
       - name: Install Dependencies
@@ -62,18 +60,14 @@ jobs:
             sudo apt-get -y install g++-7 cmake
       - name: CMake
         run: |
-          mkdir build
-          cd build
-          cmake -DBUILD_BIP66_TESTS=ON ..
+          mkdir build && cd build
+          cmake -DUNIT_TEST=ON ..
           cmake --build .
       - name: Run Tests
-        run: |
-          cd build
-          ./test/bip66_tests
+        run: ./build/test/bip66_tests
 
   linux-clang-5:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v1
       - name: Install Dependencies
@@ -82,18 +76,14 @@ jobs:
           sudo apt-get -y install clang-5.0 clang-format-5.0 cmake
       - name: CMake
         run: |
-          mkdir build
-          cd build
-          cmake -DBUILD_BIP66_TESTS=ON ..
+          mkdir build && cd build
+          cmake -DUNIT_TEST=ON ..
           cmake --build .
       - name: Run tests
-        run: |
-          cd build
-          ./test/bip66_tests
+        run: ./build/test/bip66_tests
 
   macos:
     runs-on: macOS-latest
-
     steps:
       - uses: actions/checkout@v1
       - run: COMPILER=clang++
@@ -101,14 +91,11 @@ jobs:
         run: brew install cmake
       - name: CMake
         run: |
-          mkdir build
-          cd build
-          cmake -DBUILD_BIP66_TESTS=ON ..
+          mkdir build && cd build
+          cmake -DUNIT_TEST=ON ..
           cmake --build .
       - name: Run Tests
-        run: |
-          cd build
-          ./test/bip66_tests
+        run: ./build/test/bip66_tests
 
   windows:
     runs-on: windows-2016
@@ -116,16 +103,13 @@ jobs:
       fail-fast: false
       matrix:
         build: [Debug, Release]
-
     steps:
       - uses: actions/checkout@v1
       - name: Setup MSBuild.exe
         uses: warrenbuckley/Setup-MSBuild@v1
-      - name: Install
-        run: git submodule update --init --recursive
       - name: CMake
-        run: cmake -G "Visual Studio 15 2017 Win64" -DBUILD_BIP66_TESTS=ON .
+        run: cmake -DUNIT_TEST=ON -G "Visual Studio 15 2017 Win64" .
       - name: Build Solution
-        run: msbuild "%GITHUB_WORKSPACE%\BIP66.sln"
+        run: msbuild "%GITHUB_WORKSPACE%\bip66.sln"
       - name: Run Tests
         run: call "%GITHUB_WORKSPACE%\test\Debug\bip66_tests"
