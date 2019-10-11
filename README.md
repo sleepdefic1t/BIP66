@@ -14,29 +14,43 @@ ANS.1 DER Encoder/Decoder based on [Bitcoin BIP66](https://github.com/bitcoin/bi
 [![Latest Version](https://badgen.now.sh/github/release/sleepdefic1t/BIP66)](https://github.com/sleepdefic1t/BIP66/releases)
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
 
+- [Supported Platforms](#supported-platforms)
+- [Installation](#installation)
+  - [Arduino IDE](#arduino-ide)
+  - [PlatformIO](#platformio)
+  - [CMake](#cmake)
+- [Usage](#usage)
+  - [Encoding a Signature](#encoding-a-signature)
+  - [Decoding a Signature](#decoding-a-signature)
+  - [Checking an Encoded Signature](#checking-an-encoded-signature)
+- [License](#license)
+
 ## Supported Platforms
 
 | OS:       | Supported:    |
 | :--       | :--------:    |
-| Linux     | ✅            |
-| macOS     | ✅            |
-| Windows   | ✅            |
+| Linux     | ✅             |
+| macOS     | ✅             |
+| Windows   | ✅             |
 
 | Environment:  | Supported:    |
 | :-------      | :--------:    |
-| Arduino IDE   | ✅            |
-| PlatformIO    | ✅            |
+| Arduino IDE   | ✅             |
+| PlatformIO    | ✅             |
 
 | Board:    | Supported:    |
 | :------   | :--------:    |
-| ESP8266   | ✅            |
-| ESP32     | ✅            |
+| ESP8266   | ✅             |
+| ESP32     | ✅             |
+| ESP32     | ✅             |
 
 ## Installation
 
 ### Arduino IDE
 
-Download BIP66 from the Arduino IDE Library manager, or clone/download this repo and place it in the Arduino Libraries directory.  (_e.g. `~/Documents/Arduino/libraries`_)
+Download BIP66 from the Arduino IDE Library manager.  
+You can also copy this repo to the Arduino Libraries directory.  
+(e.g. `~/Documents/Arduino/libraries`)
 
 1) Open the `BIP66.ino` sketch in the `examples/BIP66` folder.  
 2) Select your board from the Arduino IDE
@@ -46,42 +60,46 @@ Download BIP66 from the Arduino IDE Library manager, or clone/download this repo
 
 ### PlatformIO
 
-**Building BIP66:**
--   `pio run`
+#### Building BIP66 with PIO
 
-**Building BIP66 with Tests:**
--   `pio run -t test/`
+`pio run`
 
-**Flashing and Running Tests:**
--   `pio run -t test/ -e esp32 -t upload`
+#### Building BIP66 and Tests with PIO
+
+`pio run -t test/`
+
+#### Flashing and Running Tests with PIO
+
+`pio run -t test/ -e esp32 -t upload`
 
 ---
 
 ### CMake
 
-Operating System builds like Linux, macOS, and Windows use CMake to build this BIP66 library.  
+Operating System builds like Linux, macOS, and Windows use CMake.  
 This build should be done out of source.
 
-**Building BIP66:**
+#### Building BIP66 with CMake
+
 1) `mkdir build && cd build`
 2) `cmake ..`
 3) `cmake --build .`
 
-**Building BIP66 with Tests:**
+#### Building BIP66 and Tests with CMake
 
 1) `mkdir build && cd build`
 2) `cmake -DUNIT_TEST=ON ..`
 3) `cmake --build .`
 
-**Running BIP66 Tests:**
+#### Running BIP66 Tests with CMake
 
--   `./test/bip66_tests`
+`./test/bip66_tests`
 
 ---
 
 ## Usage
 
-### Encode a Signature
+### Encoding a Signature
 
 From the raw R & S elements:
 
@@ -101,7 +119,7 @@ const bool success = bip66::encode(r, 32, s, 32, signature);
 
 ---
 
-### Decode a Signature
+### Decoding a Signature
 
 From a DER-encoded signature to raw R & S elements:
 
@@ -118,7 +136,7 @@ const bool success = bip66::decode(derEncodedSignature, 70, r, s);
 
 ---
 
-### Check/Validate an Encoded Signature
+### Checking an Encoded Signature
 
 From a DER-encoded signature:
 
