@@ -16,40 +16,27 @@ ANS.1 DER Encoder/Decoder based on [Bitcoin BIP66](https://github.com/bitcoin/bi
 
 ## Supported Platforms
 
-| IoT:        | supported: |
-| :---------- | :--------: |
-| Arduino IDE | [x]        |
-| PlatformIO  | [x]        |
+| OS:       | Supported:    |
+| :--       | :--------:    |
+| Linux     | ✅            |
+| macOS     | ✅            |
+| Windows   | ✅            |
 
-| OS Platform: | supported: |
-| :----------- | :--------: |
-| Linux        | [x]        |
-| macOS        | [x]        |
-| Windows      | [x]        |
+| Environment:  | Supported:    |
+| :-------      | :--------:    |
+| Arduino IDE   | ✅            |
+| PlatformIO    | ✅            |
 
-| Boards: | supported: |
-| :------ | :--------: |
-| ESP8266 | [x] |
-| ESP32   | [x] |
+| Board:    | Supported:    |
+| :------   | :--------:    |
+| ESP8266   | ✅            |
+| ESP32     | ✅            |
 
 ## Installation
 
-### Dependencies
-
-- IoT:
-  - **Arduino IDE**: N/A
-  - **PlatformIO**: AUnit
-- OS:
-  - **Linux**: CMake,
-  - **macOS**: CMake
-  - **Windows**: CMake
-  > _Unit Testing: Git is required for the GoogleTest submodule_
-
----
-
 ### Arduino IDE
 
-Download BIP66 from the Arduino IDE Library manager, or clone/download this repo and place it in the Arduino Libraries directory.  (_e.g. `~Documents/Arduino/libraries`_)
+Download BIP66 from the Arduino IDE Library manager, or clone/download this repo and place it in the Arduino Libraries directory.  (_e.g. `~/Documents/Arduino/libraries`_)
 
 1) Open the `BIP66.ino` sketch in the `examples/BIP66` folder.  
 2) Select your board from the Arduino IDE
@@ -59,14 +46,14 @@ Download BIP66 from the Arduino IDE Library manager, or clone/download this repo
 
 ### PlatformIO
 
-**Building the Library**
--    `pio run`
+**Building BIP66:**
+-   `pio run`
 
-**Building the Library with Tests**
--    `pio run -t test/`
+**Building BIP66 with Tests:**
+-   `pio run -t test/`
 
-**Uploading and Running Tests**
--    `pio run -t test/ -e esp32 -t upload`
+**Flashing and Running Tests:**
+-   `pio run -t test/ -e esp32 -t upload`
 
 ---
 
@@ -75,17 +62,20 @@ Download BIP66 from the Arduino IDE Library manager, or clone/download this repo
 Operating System builds like Linux, macOS, and Windows use CMake to build this BIP66 library.  
 This build should be done out of source.
 
-**Building the Library**
+**Building BIP66:**
 1) `mkdir build && cd build`
 2) `cmake ..`
 3) `cmake --build .`
 
-**Building and Run Tests**
+**Building BIP66 with Tests:**
 
 1) `mkdir build && cd build`
 2) `cmake -DUNIT_TEST=ON ..`
 3) `cmake --build .`
-4) `./test/bip66_tests`
+
+**Running BIP66 Tests:**
+
+-   `./test/bip66_tests`
 
 ---
 
