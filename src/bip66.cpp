@@ -30,7 +30,7 @@
 
 #include <array>
 #include <cstdint>
-#include <algorithm>
+#include <cstring>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Global Constants
