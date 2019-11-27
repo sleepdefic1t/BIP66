@@ -36,7 +36,6 @@
 #include "test_cases.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
-
 TEST(BIP66, encode) {
     const uint8_t count     = ENC_DEC_COUNT;
     uint8_t matches         = 0U;
@@ -54,7 +53,6 @@ TEST(BIP66, encode) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 TEST(BIP66, encode_valid) {
     const uint8_t count     = VALID_ENCODED_COUNT;
     uint8_t matches         = 0U;
@@ -72,7 +70,6 @@ TEST(BIP66, encode_valid) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 TEST(BIP66, encode_invalid) {
     const uint8_t count     = INVALID_RS_COUNT;
     uint8_t misses          = 0U;
@@ -90,7 +87,6 @@ TEST(BIP66, encode_invalid) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 TEST(BIP66, decode) {
     uint8_t matches = 0U;
 
@@ -120,7 +116,6 @@ TEST(BIP66, decode_valid) {
     ASSERT_EQ(matches, count);
 }
 ////////////////////////////////////////////////////////////////////////////////
-
 TEST(BIP66, decode_invalid) {
     const uint8_t count     = VALID_ENCODED_COUNT;
     uint8_t misses          = 0U;
@@ -137,7 +132,6 @@ TEST(BIP66, decode_invalid) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 TEST(BIP66, check) {
     uint8_t matches = 0U;
 
@@ -147,7 +141,6 @@ TEST(BIP66, check) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 TEST(BIP66, check_valid) {
     const uint8_t count     = VALID_ENCODED_COUNT;
     uint8_t matches         = 0U;
@@ -160,7 +153,6 @@ TEST(BIP66, check_valid) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 TEST(BIP66, check_invalid) {
     const uint8_t count     = INVALID_ENCODED_COUNT;
     uint8_t misses          = 0U;
@@ -171,5 +163,3 @@ TEST(BIP66, check_invalid) {
 
     ASSERT_EQ(misses, count);
 }
-
-////////////////////////////////////////////////////////////////////////////////
