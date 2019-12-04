@@ -30,30 +30,36 @@
 #define BIP66_TEST_CASES_H
 
 #include <cstdint>
+#include <cstddef>
 
 ////////////////////////////////////////////////////////////////////////////////
+// Global Constants
+constexpr size_t ELEMENT_LENGTH            = 32U;
 
-#define ELEMENT_LENGTH              32U
+constexpr size_t ENC_DEC_COUNT             = 5U;
+constexpr size_t DECODED_LENGTH            = 64U;
+constexpr size_t ENCODED_LENGTH            = 70U;
+constexpr size_t ENCODED_MAX_LENGTH        = 72U;
 
-#define ENC_DEC_COUNT               5U
-#define DECODED_LENGTH              64U
-#define ENCODED_LENGTH              70U
-#define ENCODED_MAX_LENGTH          72U
+constexpr size_t VALID_ENCODED_COUNT       = 9U;
+constexpr size_t VALID_ENCODED_LENGTH      = 71U;
+constexpr size_t VALID_R_LENGTH            = 33U;
+constexpr size_t VALID_S_LENGTH            = 34U;
 
-#define VALID_ENCODED_COUNT         9U
-#define VALID_ENCODED_LENGTH        71U
-#define VALID_R_LENGTH              33U
-#define VALID_S_LENGTH              34U
-
-#define INVALID_ENCODED_COUNT       15U
-#define INVALID_ENCODED_LENGTH      74U
-#define INVALID_RS_COUNT            8U
-#define INVALID_RS_LENGTH           35U
+constexpr size_t INVALID_ENCODED_COUNT     = 15U;
+constexpr size_t INVALID_ENCODED_LENGTH    = 74U;
+constexpr size_t INVALID_RS_COUNT          = 8U;
+constexpr size_t INVALID_RS_LENGTH         = 35U;
 
 ////////////////////////////////////////////////////////////////////////////////
+// Test cases adapted from:
+// https://github.com/bitcoinjs/bip66/blob/master/test/fixtures.json
+//
+// ---
+namespace test_cases {  // NOLINT
 
-namespace test_cases {
-constexpr const uint8_t encoded[ENC_DEC_COUNT][ENCODED_LENGTH] = {
+////////////////////////////////////////////////////////////////////////////////
+constexpr uint8_t encoded[ENC_DEC_COUNT][ENCODED_LENGTH] = {
         // 3044022021704f2adb2e4a10a3ddc1d7d64552b8061c05f6d12a168c69091c75581d611402200edf37689d2786fc690af9f0f6fa1f629c95695039f648a6d455484302402e93
     { 48, 68, 2, 32, 33, 112, 79, 42, 219, 46, 74, 16, 163, 221, 193, 215, 214, 69, 82, 184, 6, 28, 5, 246, 209, 42, 22, 140, 105, 9, 28, 117, 88, 29, 97, 20, 2, 32, 14, 223, 55, 104, 157, 39, 134, 252, 105, 10, 249, 240, 246, 250, 31, 98, 156, 149, 105, 80, 57, 246, 72, 166, 212, 85, 72, 67, 2, 64, 46, 147 },
         // 3044022038044de976712d32fbf37451c266e1867e6e31b4e69ada8792a94db32078ab5802204c146804cc62f2231d39d9e3afc704b51e491cee0c7cfa6ac3548f3db4c511da
@@ -66,7 +72,8 @@ constexpr const uint8_t encoded[ENC_DEC_COUNT][ENCODED_LENGTH] = {
     { 48, 68, 2, 32, 0, 148, 233, 61, 184, 240, 196, 17, 127, 179, 45, 44, 83, 75, 39, 112, 207, 61, 108, 205, 198, 76, 124, 218, 52, 32, 129, 175, 166, 148, 125, 63, 2, 32, 84, 34, 23, 111, 170, 225, 35, 3, 56, 159, 243, 81, 231, 6, 65, 23, 122, 27, 67, 134, 250, 231, 97, 63, 47, 74, 53, 55, 221, 96, 26, 80 }
 };  // encoded
 
-constexpr const uint8_t decoded[ENC_DEC_COUNT][DECODED_LENGTH] = {
+////////////////////////////////////////////////////////////////////////////////
+constexpr uint8_t decoded[ENC_DEC_COUNT][DECODED_LENGTH] = {
         // 21704f2adb2e4a10a3ddc1d7d64552b8061c05f6d12a168c69091c75581d61140edf37689d2786fc690af9f0f6fa1f629c95695039f648a6d455484302402e93
     { 33, 112, 79, 42, 219, 46, 74, 16, 163, 221, 193, 215, 214, 69, 82, 184, 6, 28, 5, 246, 209, 42, 22, 140, 105, 9, 28, 117, 88, 29, 97, 20, 14, 223, 55, 104, 157, 39, 134, 252, 105, 10, 249, 240, 246, 250, 31, 98, 156, 149, 105, 80, 57, 246, 72, 166, 212, 85, 72, 67, 2, 64, 46, 147 },
         // 38044de976712d32fbf37451c266e1867e6e31b4e69ada8792a94db32078ab584c146804cc62f2231d39d9e3afc704b51e491cee0c7cfa6ac3548f3db4c511da
@@ -80,10 +87,11 @@ constexpr const uint8_t decoded[ENC_DEC_COUNT][DECODED_LENGTH] = {
 };  // decoded
 
 ////////////////////////////////////////////////////////////////////////////////
-
-// additional test cases adapted from: https://github.com/bitcoinjs/bip66/blob/master/test/fixtures.json
+// Valid Cases
 namespace valid {
-constexpr const uint8_t encoded[VALID_ENCODED_COUNT][VALID_ENCODED_LENGTH] = {
+
+////////////////////////////////////////////////////////////////////////////////
+constexpr uint8_t encoded[VALID_ENCODED_COUNT][VALID_ENCODED_LENGTH] = {
         // len[0] + 3044022029db2d5f4e1dcc04e19266cce3cb135865784c62ab653b307f0e0bb744f5c2aa022000a97f5826912cac8b44d9f577a26f169a2f8db781f2ddb7de2bc886e93b6844
     { 70, 48, 68, 2, 32, 41, 219, 45, 95, 78, 29, 204, 4, 225, 146, 102, 204, 227, 203, 19, 88, 101, 120, 76, 98, 171, 101, 59, 48, 127, 14, 11, 183, 68, 245, 194, 170, 2, 32, 0, 169, 127, 88, 38, 145, 44, 172, 139, 68, 217, 245, 119, 162, 111, 22, 154, 47, 141, 183, 129, 242, 221, 183, 222, 43, 200, 134, 233, 59, 104, 68 },
         // len[0] + 304302201ea1fdff81b3a271659df4aad19bc4ef83def389131a36358fe64b245632e777021f29e164658be9ce810921bf81d6b86694785a79ea1e52dbfa5105148d1f0bc1
@@ -104,7 +112,8 @@ constexpr const uint8_t encoded[VALID_ENCODED_COUNT][VALID_ENCODED_LENGTH] = {
     { 8, 48, 6, 2, 1, 0, 2, 1, 0 }
 };  //  encoded
 
-constexpr const uint8_t r[VALID_ENCODED_COUNT][VALID_R_LENGTH] = {
+////////////////////////////////////////////////////////////////////////////////
+constexpr uint8_t r[VALID_ENCODED_COUNT][VALID_R_LENGTH] = {
         // len[0] + 29db2d5f4e1dcc04e19266cce3cb135865784c62ab653b307f0e0bb744f5c2aa
     { 32, 41, 219, 45, 95, 78, 29, 204, 4, 225, 146, 102, 204, 227, 203, 19, 88, 101, 120, 76, 98, 171, 101, 59, 48, 127, 14, 11, 183, 68, 245, 194, 170 },
         // len[0] + 1ea1fdff81b3a271659df4aad19bc4ef83def389131a36358fe64b245632e777
@@ -125,7 +134,8 @@ constexpr const uint8_t r[VALID_ENCODED_COUNT][VALID_R_LENGTH] = {
     { 1, 0 }
 };  // r
 
-constexpr const uint8_t s[VALID_ENCODED_COUNT][VALID_S_LENGTH] = {
+////////////////////////////////////////////////////////////////////////////////
+constexpr uint8_t s[VALID_ENCODED_COUNT][VALID_S_LENGTH] = {
         // len[0] + 00a97f5826912cac8b44d9f577a26f169a2f8db781f2ddb7de2bc886e93b6844
     { 32, 0, 169, 127, 88, 38, 145, 44, 172, 139, 68, 217, 245, 119, 162, 111, 22, 154, 47, 141, 183, 129, 242, 221, 183, 222, 43, 200, 134, 233, 59, 104, 68 },
         // len[0] + 29e164658be9ce810921bf81d6b86694785a79ea1e52dbfa5105148d1f0bc1
@@ -145,12 +155,15 @@ constexpr const uint8_t s[VALID_ENCODED_COUNT][VALID_S_LENGTH] = {
         // len[0] + 0
     { 1, 0 }
 };  // s
+
 }  // namespace valid
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// Invalid Cases
 namespace invalid {
-constexpr const uint8_t encoded[INVALID_ENCODED_COUNT][INVALID_ENCODED_LENGTH] = {
+
+////////////////////////////////////////////////////////////////////////////////
+constexpr uint8_t encoded[INVALID_ENCODED_COUNT][INVALID_ENCODED_LENGTH] = {
         // DER sequence length is too short
         // len[0] + ffffffffffffff
     { 7, 255, 255, 255, 255, 255, 255, 255 },
@@ -198,7 +211,8 @@ constexpr const uint8_t encoded[INVALID_ENCODED_COUNT][INVALID_ENCODED_LENGTH] =
     { 14, 48, 12, 2, 4, 0, 255, 255, 255, 2, 4, 0, 0, 255, 255 }
 };  // der
 
-constexpr const uint8_t r[INVALID_RS_COUNT][INVALID_RS_LENGTH] = {
+////////////////////////////////////////////////////////////////////////////////
+constexpr uint8_t r[INVALID_RS_COUNT][INVALID_RS_LENGTH] = {
         // R length is zero
         // len[0] + r: ""
     { 0 },
@@ -221,7 +235,8 @@ constexpr const uint8_t r[INVALID_RS_COUNT][INVALID_RS_LENGTH] = {
     { 33, 0, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 };  // r
 
-constexpr const uint8_t  s[INVALID_RS_COUNT][INVALID_RS_LENGTH] = {
+////////////////////////////////////////////////////////////////////////////////
+constexpr uint8_t  s[INVALID_RS_COUNT][INVALID_RS_LENGTH] = {
         //  s: 0080000000000000000000000000000000000000000000000000000000000000
     { 32, 0, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         // s length is zero
@@ -243,9 +258,8 @@ constexpr const uint8_t  s[INVALID_RS_COUNT][INVALID_RS_LENGTH] = {
         // len[0] + s: 00800000000000000000000000000000000000000000000000000000000000000000
     { 34, 0, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 }; // s
+
 }  // namespace invalid
 }  // namespace test_cases
-
-////////////////////////////////////////////////////////////////////////////////
 
 #endif

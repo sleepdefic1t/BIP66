@@ -98,7 +98,7 @@ jobs:
         run: ./build/test/bip66_tests
 
   windows:
-    runs-on: windows-2016
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
@@ -108,8 +108,10 @@ jobs:
       - name: Setup MSBuild.exe
         uses: warrenbuckley/Setup-MSBuild@v1
       - name: CMake
-        run: cmake -DUNIT_TEST=ON -G "Visual Studio 15 2017 Win64" .
+        run: cmake -DUNIT_TEST=ON -G "Visual Studio 16 2019" -A x64 .
       - name: Build Solution
+        shell: cmd
         run: msbuild "%GITHUB_WORKSPACE%\bip66.sln"
       - name: Run Tests
+        shell: cmd
         run: call "%GITHUB_WORKSPACE%\test\Debug\bip66_tests"

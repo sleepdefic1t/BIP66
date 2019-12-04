@@ -28,68 +28,114 @@
 
 #include "bip66.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
-#include <cstring>
 
 ////////////////////////////////////////////////////////////////////////////////
+// Global Constants
+constexpr uint8_t MIN_SIG_LENGTH        = 8U;
+constexpr uint8_t MAX_SIG_LENGTH        = 72U;
 
-#define MIN_SIG_LENGTH          8U
-#define MAX_SIG_LENGTH          72U
+constexpr uint8_t SIG_COMPOUND          = 0x30;
 
-#define SIG_COMPOUND            0x30
+constexpr uint8_t ELEMENT_LENGTH        = 32U;
 
-#define ELEMENT_LENGTH          32U
+constexpr uint8_t ELEMENT_PADDING       = 0x00;
+constexpr uint8_t ELEMENT_INTEGER       = 0x02;
+constexpr uint8_t ELEMENT_NEGATIVE      = 0x80;
 
-#define ELEMENT_PADDING         0x00
-#define ELEMENT_INTEGER         0x02
-#define ELEMENT_NEGATIVE        0x80
-
-#define SIG_SEQ_OFFSET          0U
-#define SIG_LEN_OFFSET          1U
-#define R_SEQ_OFFSET            2U
-#define R_LEN_OFFSET            3U
-#define R_BEGIN_OFFSET          4U
-#define S_LEN_OFFSET            5U  // + lenR
-#define S_BEGIN_OFFSET          6U  // + lenR
+constexpr uint8_t SIG_SEQ_OFFSET        = 0U;
+constexpr uint8_t SIG_LEN_OFFSET        = 1U;
+constexpr uint8_t R_SEQ_OFFSET          = 2U;
+constexpr uint8_t R_LEN_OFFSET          = 3U;
+constexpr uint8_t R_BEGIN_OFFSET        = 4U;
+constexpr uint8_t S_LEN_OFFSET          = 5U;  // + lenR
+constexpr uint8_t S_BEGIN_OFFSET        = 6U;  // + lenR
 
 ////////////////////////////////////////////////////////////////////////////////
-
 namespace bip66 {
 
 ////////////////////////////////////////////////////////////////////////////////
-
-static bool isValidElement(const uint8_t *element, const uint8_t length) {
+bool isValidElement(const uint8_t *element, const uint8_t &length) {
+    // Check that the Element isn't too small or too large.
     if (length == 0U || length > ELEMENT_LENGTH + 1U) {
         return false;
     }
 
+    // Check that the Element would not be interpreted as a negative value.
     if ((element[0] & ELEMENT_NEGATIVE) != 0U) {
         return false;
     }
 
-    // return false if the element is excessively padded.
-    return !(length > 1U &&
-            element[0] == ELEMENT_PADDING &&
-            ((element[1] & ELEMENT_NEGATIVE) == 0U));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-// Copy the element to a buffer.
-// False if first bytes Negative.
-static bool copyElement(const uint8_t *src, uint8_t *dst, uint8_t& len) {
-    if ((src[0] & ELEMENT_NEGATIVE) != 0U) {
+    // Check that the Element is not excessively padded.
+    if (length > 1U &&
+        element[0] == ELEMENT_PADDING &&
+        (element[1] & ELEMENT_NEGATIVE) == 0U) {
         return false;
     }
-
-    memmove(dst, src, len);
 
     return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Copy an Element adding or removing Padding if necessary.
+//
+// - Returns false if..
+// .. the element is null.
+// .. the destination is null.
+// .. the element length is 0, or greater than 33.
+//
+// ---
+// Copy Cases:
+//
+// Encoding and Element is Negative:
+// - Prepend padding to the element and increment its length.
+//
+// Decoding and Element has Padding:
+// - Skip the padding on copy.
+//
+// No Padding or Negative Elements detected:
+// - We already checked the buffers and lengths, let's just go ahead and copy.
+//
+// ---
+static bool copyElement(const uint8_t *element,
+                        uint8_t *dst,
+                        uint8_t &length,
+                        bool encoding = true) {
+    if (element == nullptr || dst == nullptr) {
+        return false;
+    }
 
+    // Encoding and Element is Negative, add padding.
+    if (encoding &&                                     // encoding
+        length > 1U &&                                  // length > 1
+        (element[0] & ELEMENT_NEGATIVE) != 0U) {        // 1st byte is negative
+        dst[0] = ELEMENT_PADDING;
+        std::copy_n(element, length, &dst[1]);
+        ++length;
+    }
+
+    // Decoding and has padding, skip the padding.
+    else if (!encoding &&                               // decoding
+             element[0] == ELEMENT_PADDING &&           // has padding
+             (element[1] & ELEMENT_NEGATIVE) != 0U) {   // 2nd byte is negative
+        std::copy_n(&element[1], length - 1U, dst);
+
+        // Padding is technically considered invalid,
+        // let's check the original element instead.
+        return isValidElement(element, length - 1U);
+    }
+
+    // No Padding or Negative Elements detected.
+    else {
+        std::copy_n(element, length, dst);
+    }
+
+    return isValidElement(dst, length);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // bip66::encode
 // 
 //  Expects r and s to be positive DER integers.
@@ -132,40 +178,26 @@ static bool copyElement(const uint8_t *src, uint8_t *dst, uint8_t& len) {
 //
 // --
 bool encode(const uint8_t *rElement,
-            const uint8_t rElementLength,
+            const uint8_t &rElementLength,
             const uint8_t *sElement,
-            const uint8_t sElementLength,
+            const uint8_t &sElementLength,
             uint8_t *outSignature) {
     if (outSignature == nullptr) {
         return false;
     }
 
-    if (!isValidElement(rElement, rElementLength) ||
-        !isValidElement(sElement, sElementLength)) {
-        return false;
-    }
+    std::array<std::array<uint8_t, ELEMENT_LENGTH + 2U> , 2U>  rs {};
 
-    std::array<std::array<uint8_t, ELEMENT_LENGTH + 1U> , 2U>  rs {};
-
-    auto lenR = rElementLength;
-    auto lenS = sElementLength;
+    uint8_t lenR = rElementLength;
+    uint8_t lenS = sElementLength;
 
     // Copy the Elements, checking for NULL
-    if (!copyElement(rElement, rs[0].data(), lenR) ||
-        !copyElement(sElement, rs[1].data(), lenS)) {
+    if (!copyElement(rElement, rs.at(0).data(), lenR) ||
+        !copyElement(sElement, rs.at(1).data(), lenS)) {
         return false;
     }
 
-    auto it = rs[0].data();
-    while (*++it == 0U && *(it + 1U) < ELEMENT_NEGATIVE && --lenR > 1U) {};
-
-    it = rs[1].data();
-    while (*++it == 0U && *(it + 1U) < ELEMENT_NEGATIVE && --lenS > 1U) {};
-
-    lenR = std::max(lenR, (uint8_t)1U);
-    lenS = std::max(lenS, (uint8_t)1U);
-
-    const auto outLen = S_BEGIN_OFFSET + lenR + lenS;
+    const uint8_t outLen = S_BEGIN_OFFSET + lenR + lenS;
 
     if (outLen < MIN_SIG_LENGTH || outLen > MAX_SIG_LENGTH) {
         return false;
@@ -175,76 +207,61 @@ bool encode(const uint8_t *rElement,
     outSignature[SIG_SEQ_OFFSET]    = SIG_COMPOUND;                 // 1 Byte
     outSignature[SIG_LEN_OFFSET]    = outLen - R_SEQ_OFFSET;        // 1 Byte
 
+    // R Sequence
     outSignature[R_SEQ_OFFSET]      = ELEMENT_INTEGER;              // 1 Byte
     outSignature[R_LEN_OFFSET]      = lenR;                         // 1 Byte
-    memmove(&outSignature[R_BEGIN_OFFSET], rs[0].data(), lenR);     // 32 <=> 33
+    std::copy_n(rs.at(0).data(),                            // 32 <=> 33 Bytes
+                lenR,
+                &outSignature[R_BEGIN_OFFSET]);
 
+    // S Sequence
     outSignature[R_BEGIN_OFFSET + lenR] = ELEMENT_INTEGER;          // 1 Byte
     outSignature[S_LEN_OFFSET + lenR]   = lenS;                     // 1 Byte
-    memmove(&outSignature[S_BEGIN_OFFSET + lenR],                   // 32 <=> 33
-            rs[1].data(), lenS);
+    std::copy_n(rs.at(1).data(),                            // 32 <=> 33 Bytes
+                lenS,
+                &outSignature[S_BEGIN_OFFSET + lenR]);
 
-  return check(outSignature, outLen);                               // 70 <=> 72
+  return check(outSignature, outLen);                       // 70 <=> 72 Bytes
 }
-
 ////////////////////////////////////////////////////////////////////////////////
-
 // bip66::decode
 //
 // Decode the R and S elements from a Signature using Check validation.
 bool decode(const uint8_t *signature,
-            const uint8_t signatureLength,
+            const uint8_t &signatureLength,
             uint8_t *outR,
             uint8_t *outS)  {
     if (!check(signature, signatureLength)) {
         return false;
     }
 
-    if (outR == nullptr || outS == nullptr) {
-        return false;
-    }
+    uint8_t lenR = signature[R_LEN_OFFSET];
+    uint8_t lenS = signature[S_LEN_OFFSET + lenR];
 
-    memmove(outR, &signature[R_BEGIN_OFFSET], signature[R_LEN_OFFSET]);
-
-    memmove(outS,
-            &signature[S_BEGIN_OFFSET + signature[R_LEN_OFFSET]],
-            signature[S_LEN_OFFSET + signature[R_LEN_OFFSET]]);
-
-    return true;
+    return copyElement(&signature[R_BEGIN_OFFSET], outR, lenR, false) &&
+           copyElement(&signature[S_BEGIN_OFFSET + lenR], outS, lenS, false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 // bip66::check
 //
 // - Check that the Signature has valid DER encoding.
 // - Ensure that each Element is..
 // .. of the correct length corresponding to the Signature.
 // .. a valid Element.
-bool check(const uint8_t *signature, uint8_t signatureLength) {
-    if (signatureLength < MIN_SIG_LENGTH || signatureLength > MAX_SIG_LENGTH) {
+bool check(const uint8_t *signature, const uint8_t &length) {
+    // Check the Signature Length
+    if (length < MIN_SIG_LENGTH || length > MAX_SIG_LENGTH) {
         return false;
     }
 
     // Check for valid encoding.
     if (signature[SIG_SEQ_OFFSET] != SIG_COMPOUND ||
-        signature[SIG_LEN_OFFSET] != signatureLength - R_SEQ_OFFSET) {
+        signature[SIG_LEN_OFFSET] != length - R_SEQ_OFFSET) {
         return false;
     }
 
     uint8_t lenR = signature[R_LEN_OFFSET];
-    uint8_t lenS = signature[S_LEN_OFFSET + lenR];
-
-    if (!isValidElement(&signature[SIG_SEQ_OFFSET], lenR) ||
-        !isValidElement(&signature[R_BEGIN_OFFSET + lenR], lenS)) {
-        return false;
-    }
-
-    // Check that the R & S lengths aren't too big.
-    if ((S_LEN_OFFSET + lenR >= signatureLength) ||
-        (S_BEGIN_OFFSET + lenR + lenS) != signatureLength) {
-        return false;
-    }
 
     // Check that both elements are integers.
     if (signature[R_SEQ_OFFSET] != ELEMENT_INTEGER ||
@@ -252,9 +269,20 @@ bool check(const uint8_t *signature, uint8_t signatureLength) {
         return false;
     }
 
-    return true;
-}
+    uint8_t lenS = signature[S_LEN_OFFSET + lenR];
 
-////////////////////////////////////////////////////////////////////////////////
+    // Check that the R & S lengths aren't too big.
+    if (S_LEN_OFFSET + lenR >= length ||
+        S_BEGIN_OFFSET + lenR + lenS != length) {
+        return false;
+    }
+
+    if (signature[R_BEGIN_OFFSET + lenR] != ELEMENT_INTEGER) {
+        return false;
+    }
+
+    return isValidElement(&signature[R_BEGIN_OFFSET], lenR) &&
+           isValidElement(&signature[lenR + S_BEGIN_OFFSET], lenS);
+}
 
 }  // namespace bip66

@@ -12,9 +12,9 @@ bip66	KEYWORD1
 # Methods and Functions (KEYWORD2)
 #######################################
 
-check	KEYWORD2
-decode	KEYWORD2
 encode	KEYWORD2
+decode	KEYWORD2
+check	KEYWORD2
 
 ######################################
 # Constants (LITERAL1)
