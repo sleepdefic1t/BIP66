@@ -106,12 +106,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Setup MSBuild.exe
-        uses: warrenbuckley/Setup-MSBuild@v1
+        uses: microsoft/setup-msbuild@v1.0.2
       - name: CMake
-        run: cmake -DUNIT_TEST=ON -G "Visual Studio 16 2019" -A x64 .
-      - name: Build Solution
-        shell: cmd
-        run: msbuild "%GITHUB_WORKSPACE%\bip66.sln"
-      - name: Run Tests
-        shell: cmd
-        run: call "%GITHUB_WORKSPACE%\test\Debug\bip66_tests"
+        run: cmake -D UNIT_TEST=ON -G "Visual Studio 16 2019" .
+      - name: Build and Run Tests
+        run: |
+          msbuild '${{ github.workspace }}\bip66.sln'
+          '${{ github.workspace }}\test\Debug\bip66_tests.exe'
