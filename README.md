@@ -42,6 +42,7 @@ ANS.1 DER Encoder/Decoder based on [Bitcoin BIP66](https://github.com/bitcoin/bi
 | :------   | :--------:    |
 | ESP8266   | ✅             |
 | ESP32     | ✅             |
+| ESP32-S2  | ✅             |
 
 ## Installation
 
